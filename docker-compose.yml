@@ -1,0 +1,45 @@
+services:
+  php:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/:/var/www/html
+    ports:
+      - "9000:9000"
+    networks:
+      - backend
+    depends_on:
+      - mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=magento
+      - MYSQL_HOST=mysql
+  mysql:
+    image: mysql:5.7
+    volumes:
+      - ./mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=magento
+      - MYSQL_HOST=mysql
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/:/var/www/html
+      - ./nginx/conf:/etc/nginx/conf.d
+    ports:
+      - "80:80"
+    networks:
+      - backend
+    depends_on:
+      - php
+
+networks:
+  backend:
