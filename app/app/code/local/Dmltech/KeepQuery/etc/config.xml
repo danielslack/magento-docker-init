@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config>
+    <frontend>
+        <events>
+            <controller_action_predispatch>
+                <observers>
+                    <salvar_querystring>
+                        <type>singleton</type>
+                        <class>Dmltech_KeepQuery_Model_Observer</class>
+                        <method>salvarQuerystring</method>
+                    </salvar_querystring>
+                </observers>
+            </controller_action_predispatch>
+        </events>
+    </frontend>
+</config>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Dmltech_KeepQuery>
+            <active>true</active>
+            <codePool>local</codePool>
+        </Dmltech_KeepQuery>
+    </modules>
+    <global>
+        <!-- <helpers>
+            <customer>
+                <rewrite>
+                    <data>Dmltech_KeepQuery_Helper_Customer_Data</data>
+                </rewrite>
+            </customer>
+        </helpers> -->
+    </global>
+</config>

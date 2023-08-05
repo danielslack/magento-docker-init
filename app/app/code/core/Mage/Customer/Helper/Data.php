@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Magento
  *
@@ -20,7 +21,7 @@
  *
  * @category    Mage
  * @package     Mage_Customer
- * @copyright  Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @copyright  Copyright (c) 2006-2020 Magento, Inc. (http://www.magento.com)
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -77,13 +78,20 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
      * Configuration path to expiration period of reset password link
      */
     const XML_PATH_CUSTOMER_RESET_PASSWORD_LINK_EXPIRATION_PERIOD
-        = 'default/customer/password/reset_link_expiration_period';
+    = 'default/customer/password/reset_link_expiration_period';
 
     /**
      * Configuration path to require admin password on customer password change
      */
     const XML_PATH_CUSTOMER_REQUIRE_ADMIN_USER_TO_CHANGE_USER_PASSWORD
-        = 'customer/password/require_admin_user_to_change_user_password';
+    = 'customer/password/require_admin_user_to_change_user_password';
+
+    /**
+     * Configuration path to password forgotten flow change
+     */
+    const XML_PATH_CUSTOMER_FORGOT_PASSWORD_FLOW_SECURE = 'admin/security/forgot_password_flow_secure';
+    const XML_PATH_CUSTOMER_FORGOT_PASSWORD_EMAIL_TIMES = 'admin/security/forgot_password_email_times';
+    const XML_PATH_CUSTOMER_FORGOT_PASSWORD_IP_TIMES    = 'admin/security/forgot_password_ip_times';
 
     /**
      * VAT class constants
@@ -164,46 +172,42 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
 
             if (
                 $config->getAttribute('customer', 'prefix')->getIsVisible()
-                && (
-                    $object->getPrefix()
+                && ($object->getPrefix()
                     || $object->getCustomerPrefix()
-                    )
-                ) {
-                    $name .= ($object->getPrefix() ? $object->getPrefix() : $object->getCustomerPrefix()) . ' ';
+                )
+            ) {
+                $name .= ($object->getPrefix() ? $object->getPrefix() : $object->getCustomerPrefix()) . ' ';
             }
 
             $name .= $object->getFirstname() ? $object->getFirstname() : $object->getCustomerFirstname();
 
-            if ($config->getAttribute('customer', 'middlename')->getIsVisible()
-                && (
-                    $object->getMiddlename()
+            if (
+                $config->getAttribute('customer', 'middlename')->getIsVisible()
+                && ($object->getMiddlename()
                     || $object->getCustomerMiddlename()
-                    )
-                ) {
-                    $name .= ' ' . (
-                        $object->getMiddlename()
-                        ? $object->getMiddlename()
-                        : $object->getCustomerMiddlename()
-                    );
+                )
+            ) {
+                $name .= ' ' . ($object->getMiddlename()
+                    ? $object->getMiddlename()
+                    : $object->getCustomerMiddlename()
+                );
             }
 
-            $name .= ' ' . (
-                $object->getLastname()
+            $name .= ' ' . ($object->getLastname()
                 ? $object->getLastname()
                 : $object->getCustomerLastname()
             );
 
-            if ($config->getAttribute('customer', 'suffix')->getIsVisible()
-                && (
-                    $object->getSuffix()
+            if (
+                $config->getAttribute('customer', 'suffix')->getIsVisible()
+                && ($object->getSuffix()
                     || $object->getCustomerSuffix()
-                    )
-                ) {
-                    $name .= ' ' . (
-                        $object->getSuffix()
-                        ? $object->getSuffix()
-                        : $object->getCustomerSuffix()
-                    );
+                )
+            ) {
+                $name .= ' ' . ($object->getSuffix()
+                    ? $object->getSuffix()
+                    : $object->getCustomerSuffix()
+                );
             }
         }
         return $name;
@@ -254,7 +258,8 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
 
         $referer = $this->_getRequest()->getParam(self::REFERER_QUERY_PARAM_NAME);
 
-        if (!$referer && !Mage::getStoreConfigFlag(self::XML_PATH_CUSTOMER_STARTUP_REDIRECT_TO_DASHBOARD)
+        if (
+            !$referer && !Mage::getStoreConfigFlag(self::XML_PATH_CUSTOMER_STARTUP_REDIRECT_TO_DASHBOARD)
             && !Mage::getSingleton('customer/session')->getNoReferer()
         ) {
             $referer = Mage::getUrl('*/*/*', array('_current' => true, '_use_rewrite' => true));
@@ -453,6 +458,17 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Generate unique token based on customer Id for reset password confirmation link
+     *
+     * @param $customerId
+     * @return string
+     */
+    public function generateResetPasswordLinkCustomerId($customerId)
+    {
+        return md5(uniqid($customerId . microtime() . mt_rand(), true));
+    }
+
+    /**
      * Retrieve customer reset password link expiration period in days
      *
      * @return int
@@ -481,6 +497,36 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
     public function getDefaultCustomerGroupId($store = null)
     {
         return (int)Mage::getStoreConfig(Mage_Customer_Model_Group::XML_PATH_DEFAULT_ID, $store);
+    }
+
+    /**
+     * Retrieve forgot password flow secure type
+     *
+     * @return int
+     */
+    public function getCustomerForgotPasswordFlowSecure()
+    {
+        return (int)Mage::getStoreConfig(self::XML_PATH_CUSTOMER_FORGOT_PASSWORD_FLOW_SECURE);
+    }
+
+    /**
+     * Retrieve forgot password requests to times per 24 hours from 1 e-mail
+     *
+     * @return int
+     */
+    public function getCustomerForgotPasswordEmailTimes()
+    {
+        return (int)Mage::getStoreConfig(self::XML_PATH_CUSTOMER_FORGOT_PASSWORD_EMAIL_TIMES);
+    }
+
+    /**
+     * Retrieve forgot password requests to times per hour from 1 IP
+     *
+     * @return int
+     */
+    public function getCustomerForgotPasswordIpTimes()
+    {
+        return (int)Mage::getStoreConfig(self::XML_PATH_CUSTOMER_FORGOT_PASSWORD_IP_TIMES);
     }
 
     /**
@@ -532,8 +578,10 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
         ));
 
         if (!extension_loaded('soap')) {
-            Mage::logException(Mage::exception('Mage_Core',
-                Mage::helper('core')->__('PHP SOAP extension is required.')));
+            Mage::logException(Mage::exception(
+                'Mage_Core',
+                Mage::helper('core')->__('PHP SOAP extension is required.')
+            ));
             return $gatewayResponse;
         }
 
@@ -553,7 +601,7 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
             // Send request to service
             $result = $soapClient->checkVatApprox($requestParams);
 
-            $gatewayResponse->setIsValid((boolean) $result->valid);
+            $gatewayResponse->setIsValid((bool) $result->valid);
             $gatewayResponse->setRequestDate((string) $result->requestDate);
             $gatewayResponse->setRequestIdentifier((string) $result->requestIdentifier);
             $gatewayResponse->setRequestSuccess(true);
@@ -582,7 +630,8 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
         /** @var $coreHelper Mage_Core_Helper_Data */
         $coreHelper = Mage::helper('core');
 
-        if (!is_string($countryCode)
+        if (
+            !is_string($countryCode)
             || !is_string($vatNumber)
             || !is_string($requesterCountryCode)
             || !is_string($requesterVatNumber)
@@ -613,7 +662,8 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
 
         $isVatNumberValid = $vatValidationResult->getIsValid();
 
-        if (is_string($customerCountryCode)
+        if (
+            is_string($customerCountryCode)
             && !empty($customerCountryCode)
             && $customerCountryCode === Mage::helper('core')->getMerchantCountryCode($store)
             && $isVatNumberValid
@@ -667,10 +717,11 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
             if (!$groupAutoAssignDisabled && !$customerGroupAutoAssignDisabled) {
                 $message .= $willChargeTaxMessage;
             }
-        }
-        else {
-            $contactUsMessage = sprintf($this->__('If you believe this is an error, please contact us at %s'),
-                Mage::getStoreConfig(self::XML_PATH_SUPPORT_EMAIL));
+        } else {
+            $contactUsMessage = sprintf(
+                $this->__('If you believe this is an error, please contact us at %s'),
+                Mage::getStoreConfig(self::XML_PATH_SUPPORT_EMAIL)
+            );
 
             $message = $this->__('Your Tax ID cannot be validated.') . ' '
                 . (!$groupAutoAssignDisabled && !$customerGroupAutoAssignDisabled
@@ -683,6 +734,23 @@ class Mage_Customer_Helper_Data extends Mage_Core_Helper_Abstract
         $validationMessageEnvelope->setIsError($isError);
 
         return $validationMessageEnvelope;
+    }
+
+    /**
+     * Get customer password creation timestamp or customer account creation timestamp
+     *
+     * @param $customerId
+     * @return int
+     */
+    public function getPasswordTimestamp($customerId)
+    {
+        /** @var $customer Mage_Customer_Model_Customer */
+        $customer = Mage::getModel('customer/customer')
+            ->setWebsiteId(Mage::app()->getStore()->getWebsiteId())
+            ->load((int)$customerId);
+        $passwordCreatedAt = $customer->getPasswordCreatedAt();
+
+        return is_null($passwordCreatedAt) ? $customer->getCreatedAtTimestamp() : $passwordCreatedAt;
     }
 
     /**

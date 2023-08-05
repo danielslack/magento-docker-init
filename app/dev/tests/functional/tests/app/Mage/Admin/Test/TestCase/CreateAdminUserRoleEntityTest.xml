@@ -21,15 +21,15 @@
  *
  * @category    Tests
  * @package     Tests_Functional
- * @copyright  Copyright (c) 2006-2016 X.commerce, Inc. and affiliates (http://www.magento.com)
+ * @copyright  Copyright (c) 2006-2020 Magento, Inc. (http://www.magento.com)
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../vendor/magento/mtf/etc/variations.xsd">
-    <testCase name="Mage\Admin\Test\TestCase\CreateAdminUserRoleEntityTest">
+    <testCase name="Mage\Admin\Test\TestCase\CreateAdminUserRoleEntityTest" summary="CreateAdminUserRoleEntityTest">
         <variation name="CreateAdminUserRoleEntityTestVariation1">
             <data name="role/data/rolename" xsi:type="string">AdminRole%isolation%</data>
-            <data name="role/data/current_password" xsi:type="string">123123q</data>
+            <data name="role/data/current_password" xsi:type="string">123123q123123q</data>
             <data name="role/data/resource_access" xsi:type="string">Custom</data>
             <data name="role/data/roles_resources/preset" xsi:type="string">sales</data>
             <constraint name="Mage\Admin\Test\Constraint\AssertRoleSuccessSaveMessage" />
@@ -37,7 +37,7 @@
         </variation>
         <variation name="CreateAdminUserRoleEntityTestVariation2">
             <data name="role/data/rolename" xsi:type="string">AdminRole%isolation%</data>
-            <data name="role/data/current_password" xsi:type="string">123123q</data>
+            <data name="role/data/current_password" xsi:type="string">123123q123123q</data>
             <data name="role/data/resource_access" xsi:type="string">All</data>
             <constraint name="Mage\Admin\Test\Constraint\AssertRoleSuccessSaveMessage" />
             <constraint name="Mage\Admin\Test\Constraint\AssertRoleInGrid" />
