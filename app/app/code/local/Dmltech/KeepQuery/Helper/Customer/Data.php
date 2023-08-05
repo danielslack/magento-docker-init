@@ -2,14 +2,25 @@
 
 class Dmltech_KeepQuery_Helper_Customer_Data extends Mage_Customer_Helper_Data
 {
-    public function getLoginUrl()
+    public function getLoginUrlParams()
     {
-        $url = parent::getLoginUrl();
-        $promo = Mage::getSingleton('customer/session')->getData('promo_code');
-        if ($promo) {
-            $url .= '?promo=' . $promo;
+        $params = parent::getLoginUrlParams();
+
+        $promo_code = Mage::app()->getRequest()->getQuery('promo_code');
+
+        if (!$promo_code) {
+            $promo_code = Mage::getSingleton('customer/session')->getData('promo_code');
+        } else {
+            Mage::getSingleton('customer/session')->setData('promo_code', $promo_code);
         }
-        Mage::log($url, null, 'dmltech.log', true);
-        return $url;
+
+
+        $params['_query'] = array(
+            'promo_code' => $promo_code
+        );
+
+        Mage::log($params, null, 'dmltech.log', true);
+
+        return $params;
     }
 }

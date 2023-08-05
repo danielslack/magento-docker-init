@@ -1,16 +1,29 @@
 <?xml version="1.0"?>
 <config>
+    <modules>
+        <Dmltech_KeepQuery>
+            <version>0.1.0</version>
+        </Dmltech_KeepQuery>
+    </modules>
+    <global>
+        <helpers>
+            <customer>
+                <rewrite>
+                    <data>Dmltech_KeepQuery_Helper_Customer_Data</data>
+                </rewrite>
+            </customer>
+        </helpers>
+    </global>
     <frontend>
         <events>
-            <controller_action_predispatch>
+            <controller_action_predispatch_customer_account_loginPost>
                 <observers>
-                    <salvar_querystring>
-                        <type>singleton</type>
+                    <dmltech_keepquery>
                         <class>Dmltech_KeepQuery_Model_Observer</class>
                         <method>salvarQuerystring</method>
-                    </salvar_querystring>
+                    </dmltech_keepquery>
                 </observers>
-            </controller_action_predispatch>
+            </controller_action_predispatch_customer_account_loginPost>
         </events>
     </frontend>
 </config>
